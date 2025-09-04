@@ -1,0 +1,33 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  proposals Proposal[]
+}
+
+model Proposal {
+  id              String   @id @default(cuid())
+  clientName      String
+  clientPhone     String
+  clientDocument  String
+  debtValue       Float
+  economiaValue   Float
+  indenizacaoValue Float
+  proposalType    String
+  proposalValue   Float
+  status          String   @default("pendente")
+  date            DateTime @default(now())
+  notes           String?
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+}
