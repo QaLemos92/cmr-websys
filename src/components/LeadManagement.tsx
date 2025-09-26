@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from './ui/textarea';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { CalendarIcon, Clock, User, Building2, Phone, FileText, AlertTriangle, CheckCircle2, XCircle, Plus, Search, TrendingUp } from 'lucide-react';
+import { CalendarIcon, Clock, User, FileText, CheckCircle2, XCircle, Plus, Search, TrendingUp } from 'lucide-react';
 import { cn } from './ui/utils';
 
 interface Lead {

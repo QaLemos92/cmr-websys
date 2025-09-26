@@ -22,28 +22,6 @@ interface LoginProps {
   onLogin: (user: User) => void; // 👈 ajustado
 }
 
-// Funções para gerenciar usuários no localStorage
-const getStoredUsers = (): User[] => {
-  const users = localStorage.getItem("dwac-users");
-  return users ? JSON.parse(users) : [];
-};
-
-const saveUser = (user: User) => {
-  const users = getStoredUsers();
-  const existingIndex = users.findIndex((u) => u.email === user.email);
-  if (existingIndex >= 0) {
-    users[existingIndex] = user;
-  } else {
-    users.push(user);
-  }
-  localStorage.setItem("dwac-users", JSON.stringify(users));
-};
-
-const findUser = (email: string): User | null => {
-  const users = getStoredUsers();
-  return users.find((u) => u.email === email) || null;
-};
-
 export default function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,6 +53,7 @@ export default function Login({ onLogin }: LoginProps) {
       // Backend já grava o cookie JWT
       onLogin(data.user); // ← você pode retornar o usuário na rota de login
     } catch (err) {
+      console.error("Erro no login:", err);
       setError("Erro inesperado, tente novamente.");
     } finally {
       setIsLoading(false);
@@ -103,6 +82,7 @@ export default function Login({ onLogin }: LoginProps) {
       // Cadastro feito → redireciona direto pro login
       setIsSignupMode(false);
     } catch (err) {
+      console.error("Erro no signup:", err);
       setError("Erro inesperado, tente novamente.");
     } finally {
       setIsLoading(false);

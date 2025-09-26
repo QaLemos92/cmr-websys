@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import {
   Select,
@@ -19,13 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import {
-  DollarSign,
-  TrendingUp,
-  Calendar,
-  Target,
-  CheckCircle,
-} from "lucide-react";
+import { DollarSign, TrendingUp, Target, CheckCircle } from "lucide-react";
 
 interface ClientProposal {
   id: string;
@@ -117,14 +110,6 @@ export default function CommissionPanel() {
     loadProposals();
   }, []);
 
-  const uniqueYears = Array.from(
-    new Set(proposals.map((p) => p.date.split("-")[0]))
-  );
-
-  const uniqueMonths = Array.from(
-    new Set(proposals.map((p) => p.date.split("-")[1]))
-  );
-
   const calculateCommission = (honorarioValue: number): number => {
     return honorarioValue * (parseFloat(commissionRate) / 100);
   };
@@ -211,11 +196,15 @@ export default function CommissionPanel() {
   const availableYears = Array.from(
     new Set(monthlyCommissions.map((c) => c.year))
   ).sort((a, b) => b - a);
-  const availableMonths = Array.from(new Set(
-  monthlyCommissions
-    .filter(c => selectedYear === 'all' || c.year.toString() === selectedYear)
-    .map(c => c.monthNumber) // 👈 agora usa o número
-)).sort((a, b) => a - b);
+  const availableMonths = Array.from(
+    new Set(
+      monthlyCommissions
+        .filter(
+          (c) => selectedYear === "all" || c.year.toString() === selectedYear
+        )
+        .map((c) => c.monthNumber) // 👈 agora usa o número
+    )
+  ).sort((a, b) => a - b);
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">

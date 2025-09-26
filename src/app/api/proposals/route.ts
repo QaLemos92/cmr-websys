@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db"; // prisma configurado em src/lib/db.ts
+import { Prisma } from "@prisma/client";
 
 // POST /api/proposals
 export async function POST(req: Request) {
@@ -23,12 +24,29 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(proposal, { status: 201 });
-  } catch (error: any) {
-  console.error("Erro ao salvar proposta:", error);
-  return NextResponse.json(
-    { error: error.message || "Erro ao salvar proposta" },
-    { status: 500 }
-  )}
+  } catch (error: unknown) {
+    console.error("Erro ao salvar proposta:", error);
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // exemplo: constraint violada
+      return NextResponse.json(
+        { error: `Erro Prisma: ${error.message}` },
+        { status: 400 }
+      );
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Erro desconhecido ao salvar proposta" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function GET() {
