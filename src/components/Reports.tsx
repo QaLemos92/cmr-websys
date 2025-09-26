@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
   Select,
   SelectContent,
@@ -22,15 +17,11 @@ import {
   TableRow,
 } from "./ui/table";
 import {
-  TrendingUp,
-  TrendingDown,
   DollarSign,
   Users,
   Target,
   Clock,
   CheckCircle,
-  XCircle,
-  Calendar,
 } from "lucide-react";
 
 interface Lead {
@@ -55,10 +46,7 @@ interface Lead {
   updatedAt: string;
   origem: string;
   proposalValue?: number;
-  proposalType?:
-    | "superendividamento"
-    | "outras_acoes"
-    | "consignado";
+  proposalType?: "superendividamento" | "outras_acoes" | "consignado";
 }
 
 interface ClientProposal {
@@ -85,11 +73,8 @@ interface ClientProposal {
 
 export default function Reports() {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [proposals, setProposals] = useState<ClientProposal[]>(
-    [],
-  );
-  const [selectedPeriod, setSelectedPeriod] =
-    useState<string>("30");
+  const [proposals, setProposals] = useState<ClientProposal[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("30");
 
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("pt-BR", {
@@ -98,16 +83,10 @@ export default function Reports() {
     }).format(value);
   };
 
-  const formatDate = (date: string): string => {
-    return new Date(date).toLocaleDateString("pt-BR");
-  };
-
   useEffect(() => {
     // Carregar dados
     const savedLeads = localStorage.getItem("crmLeads");
-    const savedProposals = localStorage.getItem(
-      "clientProposals",
-    );
+    const savedProposals = localStorage.getItem("clientProposals");
 
     if (savedLeads) {
       setLeads(JSON.parse(savedLeads));
@@ -123,46 +102,38 @@ export default function Reports() {
     cutoffDate.setDate(cutoffDate.getDate() - days);
 
     const filteredLeads = leads.filter(
-      (lead) => new Date(lead.createdAt) >= cutoffDate,
+      (lead) => new Date(lead.createdAt) >= cutoffDate
     );
     const filteredProposals = proposals.filter(
-      (proposal) => new Date(proposal.date) >= cutoffDate,
+      (proposal) => new Date(proposal.date) >= cutoffDate
     );
 
     return { filteredLeads, filteredProposals };
   };
 
   const { filteredLeads, filteredProposals } = getFilteredData(
-    parseInt(selectedPeriod),
+    parseInt(selectedPeriod)
   );
 
   // KPIs principais
   const kpis = {
     totalLeads: filteredLeads.length,
-    leadsNovos: filteredLeads.filter((l) => l.status === "novo")
+    leadsNovos: filteredLeads.filter((l) => l.status === "novo").length,
+    reunioesAgendadas: filteredLeads.filter((l) => l.status === "em_reuniao")
       .length,
-    reunioesAgendadas: filteredLeads.filter(
-      (l) => l.status === "em_reuniao",
-    ).length,
     propostasEnviadas: filteredLeads.filter(
-      (l) => l.status === "proposta_enviada",
+      (l) => l.status === "proposta_enviada"
     ).length,
-    contratosAssinados: filteredProposals.filter(
-      (p) => p.status === "fechado",
-    ).length,
-    contratosRecusados: filteredProposals.filter(
-      (p) => p.status === "recusado",
-    ).length,
-    leadsPerdidos: filteredLeads.filter(
-      (l) => l.status === "perdido",
-    ).length,
+    contratosAssinados: filteredProposals.filter((p) => p.status === "fechado")
+      .length,
+    contratosRecusados: filteredProposals.filter((p) => p.status === "recusado")
+      .length,
+    leadsPerdidos: filteredLeads.filter((l) => l.status === "perdido").length,
 
     taxaConversaoReuniao:
       filteredLeads.length > 0
         ? (
-            (filteredLeads.filter(
-              (l) => l.status === "em_reuniao",
-            ).length /
+            (filteredLeads.filter((l) => l.status === "em_reuniao").length /
               filteredLeads.length) *
             100
           ).toFixed(1)
@@ -170,9 +141,7 @@ export default function Reports() {
     taxaFechamento:
       filteredLeads.length > 0
         ? (
-            (filteredProposals.filter(
-              (p) => p.status === "fechado",
-            ).length /
+            (filteredProposals.filter((p) => p.status === "fechado").length /
               filteredLeads.length) *
             100
           ).toFixed(1)
@@ -182,14 +151,11 @@ export default function Reports() {
       .filter((p) => p.status === "fechado")
       .reduce((sum, p) => sum + p.proposalValue, 0),
     ticketMedio:
-      filteredProposals.filter((p) => p.status === "fechado")
-        .length > 0
+      filteredProposals.filter((p) => p.status === "fechado").length > 0
         ? filteredProposals
             .filter((p) => p.status === "fechado")
             .reduce((sum, p) => sum + p.proposalValue, 0) /
-          filteredProposals.filter(
-            (p) => p.status === "fechado",
-          ).length
+          filteredProposals.filter((p) => p.status === "fechado").length
         : 0,
 
     comissaoGerada:
@@ -223,31 +189,27 @@ export default function Reports() {
     },
   ];
 
+  // Tipo auxiliar
+  type CountItem = { name: string; value: number };
+
   // Origem dos leads
-  const origemData = filteredLeads.reduce(
-    (acc: any[], lead) => {
-      const existingOrigem = acc.find(
-        (item) => item.name === lead.origem,
-      );
-      if (existingOrigem) {
-        existingOrigem.value++;
-      } else {
-        acc.push({
-          name: lead.origem || "Não informado",
-          value: 1,
-        });
-      }
-      return acc;
-    },
-    [],
-  );
+  const origemData = filteredLeads.reduce<CountItem[]>((acc, lead) => {
+    const existingOrigem = acc.find((item) => item.name === lead.origem);
+    if (existingOrigem) {
+      existingOrigem.value++;
+    } else {
+      acc.push({
+        name: lead.origem || "Não informado",
+        value: 1,
+      });
+    }
+    return acc;
+  }, []);
 
   // Bancos mais comuns
   const bancoData = filteredLeads
-    .reduce((acc: any[], lead) => {
-      const existingBank = acc.find(
-        (item) => item.name === lead.bankName,
-      );
+    .reduce<CountItem[]>((acc, lead) => {
+      const existingBank = acc.find((item) => item.name === lead.bankName);
       if (existingBank) {
         existingBank.value++;
       } else {
@@ -295,10 +257,7 @@ export default function Reports() {
           </p>
         </div>
 
-        <Select
-          value={selectedPeriod}
-          onValueChange={setSelectedPeriod}
-        >
+        <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
           <SelectTrigger className="w-48">
             <SelectValue />
           </SelectTrigger>
@@ -318,12 +277,8 @@ export default function Reports() {
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4 text-blue-500" />
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Total Leads
-                </p>
-                <p className="text-2xl font-semibold">
-                  {kpis.totalLeads}
-                </p>
+                <p className="text-sm text-muted-foreground">Total Leads</p>
+                <p className="text-2xl font-semibold">{kpis.totalLeads}</p>
               </div>
             </div>
           </CardContent>
@@ -334,9 +289,7 @@ export default function Reports() {
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-yellow-500" />
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Reuniões
-                </p>
+                <p className="text-sm text-muted-foreground">Reuniões</p>
                 <p className="text-2xl font-semibold">
                   {kpis.reunioesAgendadas}
                 </p>
@@ -350,9 +303,7 @@ export default function Reports() {
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-4 w-4 text-green-500" />
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Fechados
-                </p>
+                <p className="text-sm text-muted-foreground">Fechados</p>
                 <p className="text-2xl font-semibold">
                   {kpis.contratosAssinados}
                 </p>
@@ -366,12 +317,8 @@ export default function Reports() {
             <div className="flex items-center space-x-2">
               <Target className="h-4 w-4 text-purple-500" />
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Taxa Fechamento
-                </p>
-                <p className="text-2xl font-semibold">
-                  {kpis.taxaFechamento}%
-                </p>
+                <p className="text-sm text-muted-foreground">Taxa Fechamento</p>
+                <p className="text-2xl font-semibold">{kpis.taxaFechamento}%</p>
               </div>
             </div>
           </CardContent>
@@ -382,9 +329,7 @@ export default function Reports() {
             <div className="flex items-center space-x-2">
               <DollarSign className="h-4 w-4 text-green-500" />
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Receita
-                </p>
+                <p className="text-sm text-muted-foreground">Receita</p>
                 <p className="text-xl font-semibold">
                   {formatCurrency(kpis.receitaGerada)}
                 </p>
@@ -399,9 +344,7 @@ export default function Reports() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Ticket Médio
-              </p>
+              <p className="text-sm text-muted-foreground">Ticket Médio</p>
               <p className="text-xl font-semibold text-blue-600">
                 {formatCurrency(kpis.ticketMedio)}
               </p>
@@ -412,9 +355,7 @@ export default function Reports() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Comissão Gerada
-              </p>
+              <p className="text-sm text-muted-foreground">Comissão Gerada</p>
               <p className="text-xl font-semibold text-green-600">
                 {formatCurrency(kpis.comissaoGerada)}
               </p>
@@ -438,9 +379,7 @@ export default function Reports() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Leads Perdidos
-              </p>
+              <p className="text-sm text-muted-foreground">Leads Perdidos</p>
               <p className="text-xl font-semibold text-red-600">
                 {kpis.leadsPerdidos}
               </p>
@@ -470,9 +409,7 @@ export default function Reports() {
                     />
                     <span>{item.name}</span>
                   </div>
-                  <Badge variant="secondary">
-                    {item.value}
-                  </Badge>
+                  <Badge variant="secondary">{item.value}</Badge>
                 </div>
               ))}
             </div>
@@ -492,9 +429,7 @@ export default function Reports() {
                   className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <span>{origem.name}</span>
-                  <Badge variant="secondary">
-                    {origem.value}
-                  </Badge>
+                  <Badge variant="secondary">{origem.value}</Badge>
                 </div>
               ))}
               {origemData.length === 0 && (
@@ -520,17 +455,13 @@ export default function Reports() {
                   </p>
                   <div className="space-y-2">
                     <div className="p-2 bg-blue-50 rounded">
-                      <p className="text-xs text-blue-600">
-                        Leads
-                      </p>
+                      <p className="text-xs text-blue-600">Leads</p>
                       <p className="font-semibold text-blue-700">
                         {month.leads}
                       </p>
                     </div>
                     <div className="p-2 bg-green-50 rounded">
-                      <p className="text-xs text-green-600">
-                        Fechamentos
-                      </p>
+                      <p className="text-xs text-green-600">Fechamentos</p>
                       <p className="font-semibold text-green-700">
                         {month.fechamentos}
                       </p>
@@ -562,17 +493,14 @@ export default function Reports() {
               <TableBody>
                 {bancoData.map((banco, index) => (
                   <TableRow key={banco.name}>
-                    <TableCell className="font-medium">
-                      #{index + 1}
-                    </TableCell>
+                    <TableCell className="font-medium">#{index + 1}</TableCell>
                     <TableCell>{banco.name}</TableCell>
                     <TableCell>{banco.value}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">
                         {filteredLeads.length > 0
                           ? (
-                              (banco.value /
-                                filteredLeads.length) *
+                              (banco.value / filteredLeads.length) *
                               100
                             ).toFixed(1)
                           : "0"}
@@ -607,13 +535,9 @@ export default function Reports() {
               <p className="text-2xl font-bold text-blue-600">
                 {kpis.taxaFechamento}%
               </p>
-              <p className="text-sm text-blue-600">
-                Meta: 30% - 40%
-              </p>
+              <p className="text-sm text-blue-600">Meta: 30% - 40%</p>
               {parseFloat(kpis.taxaFechamento) >= 30 ? (
-                <Badge className="bg-green-500 mt-2">
-                  ✅ Dentro da meta
-                </Badge>
+                <Badge className="bg-green-500 mt-2">✅ Dentro da meta</Badge>
               ) : (
                 <Badge variant="destructive" className="mt-2">
                   ⚠️ Abaixo da meta
@@ -622,19 +546,13 @@ export default function Reports() {
             </div>
 
             <div>
-              <h4 className="font-semibold text-blue-700 mb-2">
-                Ticket Médio
-              </h4>
+              <h4 className="font-semibold text-blue-700 mb-2">Ticket Médio</h4>
               <p className="text-2xl font-bold text-blue-600">
                 {formatCurrency(kpis.ticketMedio)}
               </p>
-              <p className="text-sm text-blue-600">
-                Meta mínima: R$ 3.000
-              </p>
+              <p className="text-sm text-blue-600">Meta mínima: R$ 3.000</p>
               {kpis.ticketMedio >= 3000 ? (
-                <Badge className="bg-green-500 mt-2">
-                  ✅ Dentro da meta
-                </Badge>
+                <Badge className="bg-green-500 mt-2">✅ Dentro da meta</Badge>
               ) : (
                 <Badge variant="destructive" className="mt-2">
                   ⚠️ Abaixo da meta
@@ -649,13 +567,9 @@ export default function Reports() {
               <p className="text-2xl font-bold text-blue-600">
                 {kpis.taxaConversaoReuniao}%
               </p>
-              <p className="text-sm text-blue-600">
-                Meta mínima: 60%
-              </p>
+              <p className="text-sm text-blue-600">Meta mínima: 60%</p>
               {parseFloat(kpis.taxaConversaoReuniao) >= 60 ? (
-                <Badge className="bg-green-500 mt-2">
-                  ✅ Dentro da meta
-                </Badge>
+                <Badge className="bg-green-500 mt-2">✅ Dentro da meta</Badge>
               ) : (
                 <Badge variant="destructive" className="mt-2">
                   ⚠️ Abaixo da meta

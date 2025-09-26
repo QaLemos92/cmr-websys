@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
 import { Switch } from "./ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -221,8 +220,6 @@ export default function DebtCalculator() {
     if (!res.ok) {
       throw new Error("Erro ao salvar no servidor");
     }
-
-    const saved = await res.json();
 
     if (method === "PATCH") {
       alert(`Proposta editada com sucesso!`);

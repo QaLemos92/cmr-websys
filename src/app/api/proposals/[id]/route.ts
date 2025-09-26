@@ -8,32 +8,45 @@ const UpdateSchema = z.object({
   notes: z.string().optional().nullable(),
 });
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  req: Request,
+  context: { params: { id: string } } // ⚠️ use context.params
+) {
   try {
-    const p = await prisma.proposal.findUnique({ where: { id: params.id } });
-    if (!p) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    return NextResponse.json(p);
-  } catch (err) {
+    const proposal = await prisma.proposal.findUnique({
+      where: { id: context.params.id },
+    });
+
+    if (!proposal) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(proposal);
+  } catch (err: unknown) {
     console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: Request,
+  context: { params: { id: string } } // <-- sem Promise
+) {
   try {
     const body = await req.json();
     const parsed = UpdateSchema.safeParse(body);
-    if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    }
 
     const updated = await prisma.proposal.update({
-      where: { id: params.id },
+      where: { id: context.params.id }, // <-- aqui usa context.params
       data: parsed.data,
     });
 
     return NextResponse.json(updated);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(err);
-    if (err.code === 'P2025') return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
